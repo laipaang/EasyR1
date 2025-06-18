@@ -13,6 +13,8 @@
 # limitations under the License.
 
 import json
+import os
+import torch
 
 import ray
 from omegaconf import OmegaConf
@@ -104,6 +106,9 @@ def main():
         default_config = OmegaConf.merge(default_config, file_config)
 
     ppo_config = OmegaConf.merge(default_config, cli_args)
+    ppo_config.trainer.nnodes = os.getenv("NNODES", "1")
+    ppo_config.trainer.n_gpus_per_node = torch.cuda.device_count()
+
     ppo_config: PPOConfig = OmegaConf.to_object(ppo_config)
     ppo_config.deep_post_init()
 
